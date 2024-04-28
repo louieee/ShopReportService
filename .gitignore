@@ -1,0 +1,58 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/$(Configuration)**/
+
+# Temporary IDE files
+**/.vs/
+**/.vscode/
+**/.idea/
+
+# NuGet packages
+**/packages/
+**/NuGet.Config
+
+# Test results
+**/TestResults/
+
+# Secret files
+**/secrets.json
+
+# Local development settings
+**/appsettings.Development.json
+
+# Build folders for specific project types
+**/wwwroot/ (for ASP.NET Core web apps)
+
+# MSBuild logs
+**/.msbuild
+
+# User-specific editor cache
+**/.user
+
+# Ignore docker files (if not using docker)
+**/Dockerfile
+**/docker-compose.yml
+
+# Ignore Entity Framework migrations folder (if not using migrations)
+**/Migrations/
+
+# Ignore AutoMapper configuration files (if not using AutoMapper)
+**/Profiles/
+
+# Visual Studio Code settings
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Visual Studio solution files - if you prefer to not commit them 
+#!!.sln
+#!!.suo
+
+# Report files
+**/Reports/*.txt
+**/Reports/*.xlsx
+
+# Logs
+**/logs/*.log
+
+# Any other project-specific files you don't want to commit
