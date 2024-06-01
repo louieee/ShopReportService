@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using ReportApp.Data.Requests.acccounts;
+using ReportService.Helpers;
 
 namespace ReportService.Models;
 
@@ -16,7 +16,7 @@ public class UserReportByYear
 public class UserReportByMonth
 {
     [Column("month")]
-    public MonthEnum Month { get; set; }
+    public VarHelper.MonthEnum Month { get; set; }
     [Column("year")]
     public int Year { get; set; }
 

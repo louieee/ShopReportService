@@ -1,18 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ReportApp.Data;
-using ReportApp.Data.Models.communication;
-using ReportApp.Data.Requests.acccounts;
 using ReportApp.Data.Services;
 using ReportService.Handlers;
 using ReportService.Helpers;
-using ReportService.Models;
 using ReportService.Responses;
 
 /*
@@ -106,7 +100,7 @@ namespace ReportService.Controllers
             [FromQuery] string? time
                 )
         {
-            if (time != null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.CustomerReportByYear
                     .FromSqlRaw("select  extract(year from c.DateJoined) as year,count(*) as " +
@@ -114,7 +108,7 @@ namespace ReportService.Controllers
                         "u.customerid group by year;");
                 return Ok(val);
             }
-            if (time != null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.CustomerReportByMonth
                     .FromSqlRaw("" + "select  extract(month from c.DateJoined) as month,  \n        " +
@@ -126,7 +120,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.CustomerReportByDay
                     .FromSqlRaw("select  date(c.datejoined) as date_joined,\n    " +
@@ -137,7 +131,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.CustomerReportByHour
                     .FromSqlRaw("select  date(c.datejoined) as date_joined,\n extract(hour from c.datejoined) as hour_joined,\n " +
@@ -163,14 +157,14 @@ namespace ReportService.Controllers
             [FromQuery] string? time
                 )
         {
-            if (time != null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.StaffReportByYear
                     .FromSqlRaw("select  extract(year from c.DateJoined) as year, " +
                                 "count(*) as staff_count from staff c join users u on c.id = u.staffid group by year;");
                 return Ok(val);
             }
-            if (time != null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.StaffReportByMonth
                     .FromSqlRaw("select  extract(month from c.DateJoined) as month," +
@@ -181,7 +175,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.StaffReportByDay
                     .FromSqlRaw("select  date(c.datejoined) as date_joined, " +
@@ -192,7 +186,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.StaffReportByHour
                     .FromSqlRaw("select  date(c.datejoined) as date_joined," +

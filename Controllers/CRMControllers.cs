@@ -1,17 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using ReportApp.Data;
 using ReportApp.Data.Models.crm;
-using ReportApp.Data.Requests.acccounts;
 using ReportService.Handlers;
 using ReportService.Helpers;
-using ReportService.Models;
-using ReportService.Responses;
 
 /*
  * get logged in user's profile
@@ -59,14 +52,14 @@ namespace ReportService.Controllers
         // [Authorize]
         public async Task<ActionResult> LeadCountReport([FromQuery] string time)
         {
-            if (time != null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.LeadReportByYear
                     .FromSqlRaw("select  extract(year from l.datecreated) as year,\n" +
                                 "count(*) as lead_count from lead l group by year;\n");
                 return Ok(val);
             }
-            if (time != null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.LeadReportByMonth
                     .FromSqlRaw("select  extract(month from l.datecreated) as month,\n" +
@@ -76,7 +69,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.LeadReportByDay
                     .FromSqlRaw("select  date(l.datecreated) as date_created,\n" +
@@ -86,7 +79,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.LeadReportByHour
                     .FromSqlRaw("select  date(l.datecreated) as date_created,\n" +
@@ -109,14 +102,14 @@ namespace ReportService.Controllers
         // [Authorize]
         public async Task<ActionResult> ContactCountReport([FromQuery] string time)
         {
-            if (time != null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ContactReportByYear
                     .FromSqlRaw("select  extract(year from c.datecreated) as year,\n" +
                                 "count(*) as contact_count from contact c group by year;\n");
                 return Ok(val);
             }
-            if (time != null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ContactReportByMonth
                     .FromSqlRaw("select  extract(month from c.datecreated) as month,\n" +
@@ -126,7 +119,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ContactReportByDay
                     .FromSqlRaw("select  date(c.datecreated) as date_created,\n" +
@@ -136,7 +129,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ContactReportByHour
                     .FromSqlRaw("select  date(c.datecreated) as date_created,\n" +
@@ -159,14 +152,14 @@ namespace ReportService.Controllers
         // [Authorize]
         public async Task<ActionResult> ConvertedLeadsCountReport([FromQuery] string time)
         {
-            if (time != null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ConvertedLeadsReportByYear
                     .FromSqlRaw("select  extract(year from l.conversiondate) as year,\n" +
                                 "count(*) as lead_count from lead  l where l.isdeal group by year;");
                 return Ok(val);
             }
-            if (time != null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ConvertedLeadsReportByMonth
                     .FromSqlRaw("with month_year as (select  distinct  extract(month from conversiondate) as month,\n" +
@@ -178,7 +171,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ConvertedLeadsReportByDay
                     .FromSqlRaw("with lead_date as (select  distinct  date(conversiondate) as date_converted\n" +
@@ -191,7 +184,7 @@ namespace ReportService.Controllers
                 return Ok(val);
             }
 
-            if (time != null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time != null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var val = _DbContext.ConvertedLeadsReportByHour
                     .FromSqlRaw("with lead_date_hr as (select  distinct  date(conversiondate) as date_converted,\n" +

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using ReportApp.Data.Requests.acccounts;
+using ReportService.Helpers;
 
 namespace ReportApp.Data.Models.inventory;
 
@@ -142,7 +142,7 @@ public class ProductsSoldPerMonth
     public int Year { get; set; }
     
     [Column("month")]
-    public MonthEnum Month { get; set; }
+    public VarHelper.MonthEnum Month { get; set; }
     
     [Column("products_sold")]
     public int ProductsCount { get; set; }

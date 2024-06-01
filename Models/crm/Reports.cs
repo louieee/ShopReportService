@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using ReportApp.Data.Requests.acccounts;
+using ReportService.Helpers;
 
 namespace ReportApp.Data.Models.crm;
 
@@ -17,7 +17,7 @@ public class CRMReportByYear
 public class CRMReportByMonth
 {
     [Column("month")]
-    public MonthEnum Month { get; set; }
+    public VarHelper.MonthEnum Month { get; set; }
     [Column("year")]
     public int Year { get; set; }
 
@@ -104,7 +104,7 @@ public class ConvertedLeadsReportByYear
 public class ConvertedLeadsReportByMonth
 {
     [Column("month")]
-    public MonthEnum Month { get; set; }
+    public VarHelper.MonthEnum Month { get; set; }
     [Column("lead_count")]
     public int LeadCount { get; set; }
     [Column("year")]

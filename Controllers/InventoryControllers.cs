@@ -1,18 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using ReportApp.Data;
 using ReportApp.Data.Models.inventory;
-using ReportApp.Data.Requests.acccounts;
 using ReportService.Handlers;
 using ReportService.Helpers;
-using ReportService.Models;
 using ReportService.Responses;
 
 /*
@@ -70,7 +63,7 @@ namespace ReportService.Controllers
             {
                 queryParam.Add(productId);
             }
-            if (time!= null && time.Equals(TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time!= null && time.Equals(VarHelper.TimeFilter.Yearly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var query = _DbContext.ProductsSoldPerYear
                     .FromSqlRaw("select extract(year from s.datepaid) as year ,\n" +
@@ -81,7 +74,7 @@ namespace ReportService.Controllers
                 return Ok(query);
             }
             
-            if (time!= null && time.Equals(TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time!= null && time.Equals(VarHelper.TimeFilter.Monthly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var query = _DbContext.ProductsSoldPerMonth
                     .FromSqlRaw("select extract(year from s.datepaid) as year,  extract(month from s.datepaid) as month,\n" +
@@ -91,7 +84,7 @@ namespace ReportService.Controllers
                                 "group by year, month;", queryParam.ToArray());
                 return Ok(query);
             }
-            if (time!= null && time.Equals(TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time!= null && time.Equals(VarHelper.TimeFilter.Daily.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var query = _DbContext.ProductsSoldPerDay
                     .FromSqlRaw("select s.datepaid as date_sold,\n" +
@@ -102,7 +95,7 @@ namespace ReportService.Controllers
                                 "group by s.datepaid", queryParam.ToArray());
                 return Ok(query);
             }
-            if (time!= null && time.Equals(TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (time!= null && time.Equals(VarHelper.TimeFilter.Hourly.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 var query = _DbContext.ProductsSoldPerHour
                     .FromSqlRaw("select s.datepaid as date_sold, extract(hour from s.datepaid) as hour_sold,\n" +
