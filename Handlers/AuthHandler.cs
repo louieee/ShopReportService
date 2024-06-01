@@ -1,4 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System.Security;
+using System.Security.Claims;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using ReportApp.Data;
+using ReportService.Models;
+using ReportService.Responses;
 
 namespace ReportService.Handlers
 {
@@ -6,9 +12,12 @@ namespace ReportService.Handlers
     {
         private readonly IHttpContextAccessor _httcontext;
 
-        public AuthHandler(IHttpContextAccessor httcontext)
+        private readonly DataContext _db;
+
+        public AuthHandler(IHttpContextAccessor httcontext, DataContext db)
         {
             _httcontext = httcontext;
+            _db = db;
         }
 
         public bool IsValidUser(string userId)
@@ -28,31 +37,36 @@ namespace ReportService.Handlers
                 return false;
             }
         }
-        public bool IsValidClient()
+        public async Task<User> GetLoggedInUser()
         {
-            try
+            var claimsIdentity = _httcontext.HttpContext?.User.Identity as ClaimsIdentity;
+            var claims = _httcontext.HttpContext?.User.Identities.First().Claims;
+            foreach (var claim in claims)
             {
-                var claimsIdentity = _httcontext.HttpContext?.User.Identity as ClaimsIdentity;
-                var claim = claimsIdentity?.FindFirst("ClientService");
-                return claim != null && bool.Parse(claim.Value);
+                Console.WriteLine($"Value: {claim.Value}");
+                Console.WriteLine($"Type: {claim.Type}");
+                Console.WriteLine($"Value Type: {claim.ValueType}\n\n");
             }
-            catch (Exception)
+
+            var userClaim = claims.First(x => x.Type == "user").Value;
+            var jsonObject = JsonSerializer.Deserialize<Dictionary<string, object>>(userClaim);
+            if (jsonObject == null || (jsonObject != null && !jsonObject.ContainsKey("user_id")))
             {
-                return false;
-            }
-        }
-        public bool IsValidVendor()
-        {
-            try
+                throw new VerificationException("This identity is invalid");
+            } 
+            var userId = jsonObject["user_id"].ToString();
+            if (userId == null)
             {
-                var claimsIdentity = _httcontext.HttpContext?.User.Identity as ClaimsIdentity;
-                var claim = claimsIdentity?.FindFirst("VendorService");
-                return claim != null && bool.Parse(claim.Value);
+                throw new VerificationException("This identity does not exist");
             }
-            catch (Exception)
+
+            var user = await _db.Users.FirstAsync(x => x.Id ==  int.Parse(userId));
+            if (user is null)
             {
-                return false;
+                throw new VerificationException("This identity does not exist");
             }
+
+            return user;
         }
 
 

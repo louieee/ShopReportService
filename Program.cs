@@ -1,9 +1,11 @@
 using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReportApp.Data;
+using ReportApp.Data.Services;
 using ReportService.Helpers;
 using ReportService.Hubs;
 
@@ -24,20 +26,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["jwt:ValidIssuer"] ?? TokenHelper.Issuer,
-            ValidAudience = builder.Configuration["jwt:ValidAudience"] ?? TokenHelper.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["jwt:Secret"] ?? TokenHelper.Secret))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("No JWT Secret"))),
+            ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true
         };
     });
 
 builder.Services.AddControllers();
 var connString = builder.Configuration.GetConnectionString("ReportDB");
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlite(connString), ServiceLifetime.Scoped);
+    options.UseNpgsql(connString));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<RabbitMQService>();
 
 // SWAGGER CONFIG
 
@@ -130,7 +134,8 @@ app.MapControllerRoute(
 );                                     
 
 app.MapHub<MessageHub>("/messageHub");  
-app.MapHub<RideHub>("/rideHub");    
+app.MapHub<RideHub>("/rideHub");
 
-
+var rabbitMqService = app.Services.GetRequiredService<RabbitMQService>();
+rabbitMqService.StartListening();
 app.Run();

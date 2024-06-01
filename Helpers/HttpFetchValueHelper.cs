@@ -1,4 +1,5 @@
-﻿using ReportService.Handlers;
+﻿using ReportApp.Data;
+using ReportService.Handlers;
 
 namespace ReportService.Helpers
 
@@ -9,13 +10,15 @@ namespace ReportService.Helpers
     public class HttpFetchValueHelper
     {
         private readonly IHttpContextAccessor _httpContext;
-        public HttpFetchValueHelper(IHttpContextAccessor httpContextAccessor)
+        private readonly DataContext _dataContext;
+        public HttpFetchValueHelper(IHttpContextAccessor httpContextAccessor, DataContext dataContext)
         {
             _httpContext = httpContextAccessor;
+            _dataContext = dataContext;
         }
         public string GetValueFromSource(string Key)
         {
-            var authHandler = new AuthHandler(_httpContext);
+            var authHandler = new AuthHandler(_httpContext, _dataContext);
             string? id;
             if (!authHandler.IsValidUser(Key))
             {

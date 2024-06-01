@@ -52,7 +52,10 @@
 **/Reports/*.txt
 **/Reports/*.xlsx
 
+*.db
 # Logs
 **/logs/*.log
 
 # Any other project-specific files you don't want to commit
+appsettings.json
+appsettings.Development.json
