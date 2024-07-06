@@ -24,9 +24,13 @@ using Microsoft.Extensions.Configuration;
             var connection = factory.CreateConnection(endpoints);
             _channel = connection.CreateModel();
             
-            _channel?.ExchangeDeclare(exchange: "business", type: ExchangeType.Fanout, durable:true);
-            _channel?.QueueDeclare(queue: "task", durable:true, exclusive:false, autoDelete: false);
-            _channel?.QueueBind(queue: "task", exchange: "business", routingKey:"");
+            _channel?.ExchangeDeclare(exchange: "sales-app", type: ExchangeType.Fanout, durable:true);
+            _channel?.QueueDeclare(queue: "report_queue", durable: true, exclusive: false, autoDelete: false,
+                new Dictionary<string, object>()
+                {
+                    ["x-queue-type"] = "quorum"
+                });
+            _channel?.QueueBind(queue: "report_queue", exchange: "sales-app", routingKey:"");
         }
 
         /// <summary>
@@ -36,14 +40,13 @@ using Microsoft.Extensions.Configuration;
         {
             Console.WriteLine("Connected to RabbitMQ.....");
 
-            EventingBasicConsumer? userConsumer = UserConsumer.CreateConsumer(_channel);
-            if (userConsumer != null)
+            EventingBasicConsumer? consumer = Consumer.CreateConsumer(_channel);
+            if (consumer != null)
             {
-                Console.WriteLine("My consumer.....");
-                _channel.BasicConsume(queue: UserConsumer.QueueName,
+                _channel.BasicConsume(queue: Consumer.QueueName,
                     autoAck: false,
                     exclusive:false,
-                    consumer: userConsumer);
+                    consumer: consumer);
             }
         }
 

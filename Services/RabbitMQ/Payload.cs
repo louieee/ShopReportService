@@ -1,12 +1,17 @@
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace ReportApp.Data.Services;
 
-public class UserPayload
+public class ReportPayload
 {
-    [JsonPropertyName("message")]
-    public string Message { get; set; }
+    [JsonProperty("action")]
+    public string Action { get; set; }
     
-    [JsonPropertyName("type")]
-    public string Type { get; set; }
+    [JsonProperty("data_type")]
+    public string DataType { get; set; }
+    
+    [JsonProperty("data")]
+    public string Data { get; set; }
+    
 }

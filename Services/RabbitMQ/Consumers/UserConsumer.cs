@@ -1,64 +1,12 @@
-using System.Text;
 using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using ReportApp.Data.Services;
 using ReportService.Models;
 
 namespace ReportService.Services.RabbitMQ.Consumers;
 
-public static class UserConsumer
+public class UserConsumer
 {
-    public const string QueueName = "task";
-    public static EventingBasicConsumer? CreateConsumer(IModel? channel)
-    {
-        if (channel == null)
-        {
-            return null;
-        }
-        var consumer = new EventingBasicConsumer(channel);
-        consumer.Received += (model, ea) =>
-        {
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            var routingKey = ea.RoutingKey;
-            Console.WriteLine($"Received message: {message}");
-            var payload = GetMessage(message);
-            switch (payload.Type)
-            {
-                case "new user": HandleCreate(message);
-                    break;
-                default: HandleDefault(message);
-                    break;
-                    
-            }
-            channel?.BasicAck(ea.DeliveryTag, false);
-            // channel?.Close();
 
-        };
-        return consumer;
-    }
-
-    private static void HandleCreate(string message)
-    {
-        var user = FormatMessageAsUser(message);
-        if (user != null)
-        {
-            Console.WriteLine($"New User: {user.Id}");
-        }
-        
-    }
-
-    private static void HandleDefault(string message)
-    {
-        Console.WriteLine($"Unknown Message:  {message}");
-    }
-
-    private static string FormatMessageAsString(string message)
-    {
-        return $"Message: {message}";
-    }
-    private static User?  FormatMessageAsUser(string message)
+    private static User?  FormatDataAsUser(string message)
     {
         User? user = null;
         try
@@ -74,19 +22,39 @@ public static class UserConsumer
         return user;
     }
 
-    private static UserPayload GetMessage(string message)
+
+    public static void HandleUser(string action, string data)
     {
-        UserPayload? payload = null;
-        try
+        switch (action)
         {
-            payload = JsonConvert.DeserializeObject<UserPayload>(message);
-            
+            case "create": 
+                handleNewUser(data); break;
+            case "update":
+                handleUserUpdate(data); break;
+                
+            default:
+                Console.WriteLine(data); break;
+                
         }
-        catch (JsonSerializationException ex)
+    }
+
+    private static void handleNewUser(string data)
+    {
+        var user = FormatDataAsUser(data);
+        if (user != null)
         {
-            payload = null;
+            Console.WriteLine($"New User: {user.Id}");
         }
 
-        return payload;
+    }
+    
+    private static void handleUserUpdate(string data)
+    {
+        var user = FormatDataAsUser(data);
+        if (user != null)
+        {
+            Console.WriteLine($"Updated User: {user.FirstName}");
+        }
+
     }
 }
