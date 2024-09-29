@@ -27,4 +27,8 @@ public partial class Order
     
     [Column("datedelivered")]
     public DateTime? DateDelivered { get; set; }
+
+    [Column("datecreated")]
+    public DateTime? DateCreated { get; set; }
+
 }

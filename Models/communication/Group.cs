@@ -14,5 +14,5 @@ public partial class Group
     [Column("type")]
     public string Type { get; set; }
     [Column("creatorid")]
-    public int CreatorId { get; set;}
+    public int? CreatorId { get; set;}
 }

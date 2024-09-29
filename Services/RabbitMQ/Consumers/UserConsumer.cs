@@ -1,4 +1,6 @@
 using Newtonsoft.Json;
+using ReportApp.Data;
+using ReportApp.Data.Services;
 using ReportService.Models;
 
 namespace ReportService.Services.RabbitMQ.Consumers;
@@ -6,55 +8,137 @@ namespace ReportService.Services.RabbitMQ.Consumers;
 public class UserConsumer
 {
 
-    private static User?  FormatDataAsUser(string message)
+    private static UserPayload?  FormatDataAsUserPayload(string message)
     {
-        User? user = null;
+        UserPayload? userPayload = null;
         try
         {
-            user = JsonConvert.DeserializeObject<User>(message);
+            userPayload = JsonConvert.DeserializeObject<UserPayload>(message);
 
         }
         catch (JsonSerializationException ex)
         {
-            user = null;
+            userPayload = null;
         }
 
-        return user;
+        return userPayload;
     }
 
 
-    public static void HandleUser(string action, string data)
+    public static void HandleUser(DataContext context, string action, string data)
     {
         switch (action)
         {
             case "create": 
-                handleNewUser(data); break;
+                handleNewUser(context, data); break;
             case "update":
-                handleUserUpdate(data); break;
-                
+                handleUserUpdate(context, data); break;
+            case "delete":
+                handleUserDelete(context, data); break;
             default:
                 Console.WriteLine(data); break;
                 
         }
     }
 
-    private static void handleNewUser(string data)
+    private static void handleNewUser(DataContext context, string data)
     {
-        var user = FormatDataAsUser(data);
-        if (user != null)
+        var userPayload = FormatDataAsUserPayload(data);
+        if (userPayload == null) return;
+        Console.WriteLine($"New User: {userPayload.Id}");
+        var accountRepository = new AccountRepository(context);
+        var user = new User
         {
-            Console.WriteLine($"New User: {user.Id}");
+            Id = userPayload.Id,
+            FirstName = userPayload.FirstName,
+            LastName = userPayload.LastName,
+            Email = userPayload.Email,
+            Gender = userPayload.Gender,
+            DateOfBirth = DateOnly.Parse(userPayload.DateOfBirth),
+        };
+        if (userPayload.IsCustomer && userPayload.CustomerId != null){
+            user.CustomerId = userPayload.CustomerId;
+            var customer = new Customer{
+                Id = (int)userPayload.CustomerId,
+                DateJoined = DateTime.Now
+            };
+            accountRepository.CreateUser(user);
+            accountRepository.CreateCustomer(customer);
         }
+        else if (userPayload.IsStaff && userPayload.StaffId != null){
+            user.StaffId = userPayload.StaffId;
+            var staff = new Staff
+            {
+                Id = (int)userPayload.StaffId,
+                DateJoined = DateTime.Now
+            };
+            accountRepository.CreateUser(user);
+            accountRepository.CreateStaff(staff);
+        }
+    }
+    private static void handleUserUpdate(DataContext context, string data)
+    {
+        var userPayload = FormatDataAsUserPayload(data);
+        if (userPayload == null) return;
+        Console.WriteLine($"Updated User: {userPayload.FirstName}");
+        var accountRepository = new AccountRepository(context);
+        var user = new User
+        {
+            Id = userPayload.Id,
+            FirstName = userPayload.FirstName,
+            LastName = userPayload.LastName,
+            Email = userPayload.Email,
+            Gender = userPayload.Gender,
+        };
+        if (userPayload.IsCustomer && userPayload.CustomerId != null){
+            user.CustomerId = userPayload.CustomerId;
+            accountRepository.UpdateUser(user);
+        }
+        else if (userPayload.IsStaff && userPayload.StaffId != null){
+            user.StaffId = userPayload.StaffId;
+            accountRepository.UpdateUser(user);
+        }
+        var userRepository = new AccountRepository(context);
+
+        userRepository.UpdateUser(user);
 
     }
-    
-    private static void handleUserUpdate(string data)
+    private static void handleUserDelete(DataContext context, string data)
     {
-        var user = FormatDataAsUser(data);
-        if (user != null)
+        var userPayload = FormatDataAsUserPayload(data);
+        var accountRepository = new AccountRepository(context);
+        if (userPayload == null) return;
+        
+        Console.WriteLine($"Deleted User: {userPayload.Id}");
+        var user = new User
         {
-            Console.WriteLine($"Updated User: {user.FirstName}");
+            Id = userPayload.Id,
+            FirstName = userPayload.FirstName,
+            LastName = userPayload.LastName,
+            Email = userPayload.Email,
+            Gender = userPayload.Gender,
+            DateOfBirth = DateOnly.Parse(userPayload.DateOfBirth),
+        };
+        if (userPayload.IsCustomer && userPayload.CustomerId != null){
+            user.CustomerId = userPayload.CustomerId;
+            var customer = new Customer{
+                Id = (int)userPayload.CustomerId,
+                DateJoined = DateTime.Now
+            };
+            accountRepository.DeleteUser(user);
+            accountRepository.DeleteCustomer(customer);
         }
+        else if (userPayload.IsStaff && userPayload.StaffId != null){
+            user.StaffId = userPayload.StaffId;
+            var staff = new Staff
+            {
+                Id = (int)userPayload.StaffId,
+                DateJoined = DateTime.Now
+            };
+            accountRepository.DeleteUser(user);
+            accountRepository.DeleteStaff(staff);
+        }        
 
     }
+
 }

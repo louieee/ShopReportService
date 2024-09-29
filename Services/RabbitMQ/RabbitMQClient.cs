@@ -6,20 +6,53 @@ using RabbitMQ.Client.Events;
 using System;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
- public class RabbitMQService
+
+
+public interface IDataContextFactory
+{
+    DataContext CreateDataContext();
+}
+
+public class DataContextFactory : IDataContextFactory
+{
+    private readonly string _connectionString;
+
+    public DataContextFactory(string connectionString){
+        _connectionString = connectionString;
+    }
+    public DataContext CreateDataContext()
+    {
+        return new DataContext(new DbContextOptionsBuilder<DataContext>().UseNpgsql(_connectionString).Options);
+    }
+}
+
+
+public class RabbitMQService
     {
         private readonly IModel? _channel;
 
+        private readonly IDataContextFactory _dataContextFactory;
+
+        private readonly DataContext _DbContext;
+
+        private readonly IConfiguration _Configuration;
+        
+
         public RabbitMQService(IConfiguration configuration)
         {
-            var configuration1 = configuration;
+            _Configuration = configuration;
+            var connString = _Configuration.GetConnectionString("ReportDB");
+            
+            _dataContextFactory = new DataContextFactory(connString??"");
+            _DbContext = _dataContextFactory.CreateDataContext();
             var factory = new ConnectionFactory();
-            factory.UserName = configuration1["RabbitMQ:UserName"];
-            factory.Password = configuration1["RabbitMQ:Password"];
+            factory.UserName = _Configuration["RabbitMQ:UserName"];
+            factory.Password = _Configuration["RabbitMQ:Password"];
 
             var endpoints = new System.Collections.Generic.List<AmqpTcpEndpoint> {
-                new AmqpTcpEndpoint(configuration1["RabbitMQ:HostName"])
+                new AmqpTcpEndpoint(_Configuration["RabbitMQ:HostName"])
             };
             var connection = factory.CreateConnection(endpoints);
             _channel = connection.CreateModel();
@@ -40,7 +73,7 @@ using Microsoft.Extensions.Configuration;
         {
             Console.WriteLine("Connected to RabbitMQ.....");
 
-            EventingBasicConsumer? consumer = Consumer.CreateConsumer(_channel);
+            EventingBasicConsumer? consumer = Consumer.CreateConsumer(_channel, _DbContext);
             if (consumer != null)
             {
                 _channel.BasicConsume(queue: Consumer.QueueName,
@@ -57,6 +90,5 @@ using Microsoft.Extensions.Configuration;
             {
                 _channel.BasicPublish(exchange:exchange, routingKey: "", body: body, mandatory: true);
             }
-     
         }
     }

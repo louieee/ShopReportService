@@ -25,4 +25,7 @@ public partial class Product
     
     [Column("quantity")]
     public int Quantity { get; set; }
+
+    [Column("date_added")]
+    public DateTime DateAdded { get; set; }
 }

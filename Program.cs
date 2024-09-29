@@ -42,7 +42,6 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connString));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<RabbitMQService>();
-
 // SWAGGER CONFIG
 
 var contact = new OpenApiContact()

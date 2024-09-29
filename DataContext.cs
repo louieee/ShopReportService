@@ -19,6 +19,7 @@ public class DataContext: DbContext
     
     public virtual DbSet<Chat> Chats { get; set; }
     public virtual DbSet<Group?> Groups { get; set; }
+    public virtual DbSet<ChatParticipant> ChatParticipants { get; set; }
     
     public virtual DbSet<Contact> Contacts { get; set; }
     public virtual DbSet<Lead> Leads { get; set; }

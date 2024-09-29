@@ -19,3 +19,19 @@ public partial class Chat
     [Column("date_connected")]
     public DateTime DateConnected { get; set; }
 }
+
+
+[Table("chat_participants")]
+public partial class ChatParticipant
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("chat_id")]
+    public string ChatId { get; set; }
+
+    [Column("user_id")]
+    public int UserId { get; set; }
+
+}

@@ -23,5 +23,6 @@ public partial class Sale
     
     [Column("location")]
     public string Location { get; set; }
+
     
 }

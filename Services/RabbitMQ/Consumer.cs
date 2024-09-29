@@ -2,6 +2,7 @@ using System.Text;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using ReportApp.Data;
 using ReportApp.Data.Services;
 using ReportService.Models;
 
@@ -10,7 +11,7 @@ namespace ReportService.Services.RabbitMQ.Consumers;
 public static class Consumer
 {
     public const string QueueName = "report_queue";
-    public static EventingBasicConsumer? CreateConsumer(IModel? channel)
+    public static EventingBasicConsumer? CreateConsumer(IModel? channel, DataContext context)
     {
         if (channel == null)
         {
@@ -27,7 +28,19 @@ public static class Consumer
             switch (payload.DataType)
             {
                 case "user": 
-                    UserConsumer.HandleUser(payload.Action, payload.Data); break;
+                    UserConsumer.HandleUser(context, payload.Action, payload.Data); break;
+                case "lead":
+                    LeadConsumer.HandleLead(context, payload.Action, payload.Data); break;
+                case "sale":
+                    SaleConsumer.HandleSale(context, payload.Action, payload.Data); break;
+                case "order":
+                    OrderConsumer.HandleOrder(context, payload.Action, payload.Data); break;
+                case "chat":
+                    ChatConsumer.HandleChat(context, payload.Action, payload.Data); break;
+                case "contact":
+                    ContactConsumer.HandleContact(context, payload.Action, payload.Data); break;
+                case "product":
+                    ProductConsumer.HandleProduct(context, payload.Action, payload.Data); break;
                 default: HandleDefault(message);
                     break;
                     

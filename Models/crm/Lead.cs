@@ -23,7 +23,7 @@ public partial class Lead
     public string Source { get; set; }
     
     [Column("nurturingstatus")]
-    public string NuturingStatus { get; set; }
+    public string NurturingStatus { get; set; }
     
     [Column("isdeal")]
     public bool IsDeal { get; set; }
@@ -32,7 +32,7 @@ public partial class Lead
     public string Company { get; set; }
     
     [Column("conversiondate")]
-    public DateTime ConversionDate { get; set; }
+    public DateTime? ConversionDate { get; set; }
     
     [Column("datecreated")]
     public DateTime DateCreated { get; set; }
